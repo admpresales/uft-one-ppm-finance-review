@@ -1,4 +1,8 @@
 ﻿'===========================================================
+'20200929 - DJ: Added .sync statements after .click statements
+'===========================================================
+
+'===========================================================
 'Function to Create a Random Number with DateTime Stamp
 '===========================================================
 Function fnRandomNumberWithDateTimeStamp()
@@ -41,28 +45,33 @@ AIUtil.SetContext AppContext																'Tell the AI engine to point at the 
 'BP:  Click the Executive Overview link
 '===========================================================================================
 AIUtil.FindText("Strategic Portfolio").Click
+AppContext.Sync																				'Wait for the browser to stop spinning
 
 '===========================================================================================
 'BP:  Click the Andy Stein (IT Financial Manager) link to log in as Andy Stein
 '===========================================================================================
 AIUtil.FindTextBlock("Andy Stein").Click
+AppContext.Sync																				'Wait for the browser to stop spinning
 AIUtil.FindTextBlock("Proposals Eligible for My Action (Financial Review)").Exist
 
 '===========================================================================================
 'BP:  Click the Search menu item
 '===========================================================================================
 AIUtil.FindText("SEARCH", micFromTop, 1).Click
+AppContext.Sync																				'Wait for the browser to stop spinning
 
 '===========================================================================================
 'BP:  Click the Requests text
 '===========================================================================================
 AIUtil.FindTextBlock("Requests", micFromTop, 1).Click
+AppContext.Sync																				'Wait for the browser to stop spinning
 
 '===========================================================================================
 'BP:  Enter PFM - Proposal into the Request Type field
 '===========================================================================================
 AIUtil("text_box", "Request Type:").Type "PFM - Proposal"
 AIUtil("text_box", "Assigned To").Click
+AppContext.Sync																				'Wait for the browser to stop spinning
 
 '===========================================================================================
 'BP:  Enter a status of "New" into the Status field
@@ -73,23 +82,28 @@ AIUtil("text_box", "Status").Type "Finance Review"
 'BP:  Click the Search button (OCR not seeing text, use traditional OR)
 '===========================================================================================
 Browser("Search Requests").Page("Search Requests").Link("Search").Click
+AppContext.Sync																				'Wait for the browser to stop spinning
 
 '===========================================================================================
 'BP:  Click the first record returned in the search results
 '===========================================================================================
 DataTable.Value("dtFirstReqID") = Browser("Search Requests").Page("Request Search Results").WebTable("Req #").GetCellData(2,2)
 AIUtil.FindTextBlock(DataTable.Value("dtFirstReqID")).Click
+AppContext.Sync																				'Wait for the browser to stop spinning
 
 '===========================================================================================
 'BP:  Click the Approved button
 '===========================================================================================
 AIUtil.FindText("Approved").Click
+AppContext.Sync																				'Wait for the browser to stop spinning
 
 '===========================================================================================
 'BP:  Logout
 '===========================================================================================
 Browser("Search Requests").Page("Req #42953: Details").WebElement("menuUserIcon").Click
+AppContext.Sync																				'Wait for the browser to stop spinning
 AIUtil.FindTextBlock("Sign Out (Andy Stein)").Click
+AppContext.Sync																				'Wait for the browser to stop spinning
 
 AppContext.Close																			'Close the application at the end of your script
 
