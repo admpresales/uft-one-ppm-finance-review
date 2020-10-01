@@ -1,5 +1,6 @@
 ﻿'===========================================================
 '20200929 - DJ: Added .sync statements after .click statements
+'20201001 - DJ: Added the ClickLoop and the PPMProposalSearch functions, removed duplicative code
 '===========================================================
 
 '===========================================================
@@ -19,6 +20,72 @@ Dim sSecond : sSecond = Second(Now)
 fnRandomNumberWithDateTimeStamp = Int(sDate & sMonth & sYear & sHour & sMinute & sSecond)
 
 '======================== End Function =====================
+End Function
+
+Function ClickLoop (AppContext, ClickStatement, SuccessStatement)
+	
+	Dim Counter
+	
+	Counter = 0
+	Do
+		ClickStatement.Click
+		AppContext.Sync																				'Wait for the browser to stop spinning
+		Counter = Counter + 1
+		wait(1)
+		If Counter >=90 Then
+			msgbox("Something is broken, the Requests hasn't shown up")
+			Reporter.ReportEvent micFail, "Click the Search text", "The Requests text didn't display within " & Counter & " attempts."
+			Exit Do
+		End If
+	Loop Until SuccessStatement.Exist(1)
+	AppContext.Sync																				'Wait for the browser to stop spinning
+
+End Function
+
+Function PPMProposalSearch (CurrentStatus, NextAction)
+	'===========================================================================================
+	'BP:  Click the Search menu item
+	'===========================================================================================
+	Set ClickStatement = AIUtil.FindText("SEARCH", micFromTop, 1)
+	Set SuccessStatement = AIUtil.FindTextBlock("Requests", micFromTop, 1)
+	ClickLoop AppContext, ClickStatement, SuccessStatement
+	AppContext.Sync																				'Wait for the browser to stop spinning
+	
+	'===========================================================================================
+	'BP:  Click the Requests text
+	'===========================================================================================
+	Set ClickStatement = AIUtil.FindTextBlock("Requests", micFromTop, 1)
+	Set SuccessStatement = AIUtil("text_box", "Request Type:")
+	ClickLoop AppContext, ClickStatement, SuccessStatement
+	AppContext.Sync																				'Wait for the browser to stop spinning
+	
+	'===========================================================================================
+	'BP:  Enter PFM - Proposal into the Request Type field
+	'===========================================================================================
+	AIUtil("text_box", "Request Type:").Type "PFM - Proposal"
+	AIUtil.FindText("Status").Click
+	AppContext.Sync																				'Wait for the browser to stop spinning
+	
+	'===========================================================================================
+	'BP:  Enter a status of "New" into the Status field
+	'===========================================================================================
+	AIUtil("text_box", "Status").Type CurrentStatus
+	
+	'===========================================================================================
+	'BP:  Click the Search button (OCR not seeing text, use traditional OR)
+	'===========================================================================================
+	Browser("Search Requests").Page("Search Requests").Link("Search").Click
+	AppContext.Sync																				'Wait for the browser to stop spinning
+	
+	'===========================================================================================
+	'BP:  Click the first record returned in the search results
+	'===========================================================================================
+	DataTable.Value("dtFirstReqID") = Browser("Search Requests").Page("Request Search Results").WebTable("Req #").GetCellData(2,2)
+	Set ClickStatement = AIUtil.FindTextBlock(DataTable.Value("dtFirstReqID"))
+	Set SuccessStatement = AIUtil.FindText(NextAction)
+	ClickLoop AppContext, ClickStatement, SuccessStatement
+	AppContext.Sync																				'Wait for the browser to stop spinning
+	
 End Function
 
 Dim BrowserExecutable, Counter
@@ -55,41 +122,9 @@ AppContext.Sync																				'Wait for the browser to stop spinning
 AIUtil.FindTextBlock("Proposals Eligible for My Action (Financial Review)").Exist
 
 '===========================================================================================
-'BP:  Click the Search menu item
+'BP:  Search for propsals currently in a status of "Finance Review"
 '===========================================================================================
-AIUtil.FindText("SEARCH", micFromTop, 1).Click
-AppContext.Sync																				'Wait for the browser to stop spinning
-
-'===========================================================================================
-'BP:  Click the Requests text
-'===========================================================================================
-AIUtil.FindTextBlock("Requests", micFromTop, 1).Click
-AppContext.Sync																				'Wait for the browser to stop spinning
-
-'===========================================================================================
-'BP:  Enter PFM - Proposal into the Request Type field
-'===========================================================================================
-AIUtil("text_box", "Request Type:").Type "PFM - Proposal"
-AIUtil("text_box", "Assigned To").Click
-AppContext.Sync																				'Wait for the browser to stop spinning
-
-'===========================================================================================
-'BP:  Enter a status of "New" into the Status field
-'===========================================================================================
-AIUtil("text_box", "Status").Type "Finance Review"
-
-'===========================================================================================
-'BP:  Click the Search button (OCR not seeing text, use traditional OR)
-'===========================================================================================
-Browser("Search Requests").Page("Search Requests").Link("Search").Click
-AppContext.Sync																				'Wait for the browser to stop spinning
-
-'===========================================================================================
-'BP:  Click the first record returned in the search results
-'===========================================================================================
-DataTable.Value("dtFirstReqID") = Browser("Search Requests").Page("Request Search Results").WebTable("Req #").GetCellData(2,2)
-AIUtil.FindTextBlock(DataTable.Value("dtFirstReqID")).Click
-AppContext.Sync																				'Wait for the browser to stop spinning
+PPMProposalSearch "Finance Review", "Approved"
 
 '===========================================================================================
 'BP:  Click the Approved button
