@@ -6,6 +6,7 @@
 '			Removed unused function
 '			Added function comments
 '			Updated OR to have more logical names
+'20201006 - DJ: Added steps to add projected financial costs into the Financial Summary
 '===========================================================
 
 '===========================================================
@@ -80,7 +81,7 @@ Function PPMProposalSearch (CurrentStatus, NextAction)
 	
 End Function
 
-Dim BrowserExecutable, Counter
+Dim BrowserExecutable, Counter, mySendKeys
 
 While Browser("CreationTime:=0").Exist(0)   												'Loop to close all open browsers
 	Browser("CreationTime:=0").Close 
@@ -117,6 +118,95 @@ AIUtil.FindTextBlock("Proposals Eligible for My Action (Financial Review)").Exis
 'BP:  Search for propsals currently in a status of "Finance Review"
 '===========================================================================================
 PPMProposalSearch "Finance Review", "Approved"
+
+'===========================================================================================
+'BP:  Click the Business Case Sta link to move down the form
+'===========================================================================================
+AIUtil.FindTextBlock("Business Case Sta").Click
+
+'===========================================================================================
+'BP:  Click the link for the Financial Summary
+'===========================================================================================
+AIUtil.FindText("Proposal Name ", micFromBottom, 1).Click
+
+'===========================================================================================
+'BP:  Maximize the popup window
+'===========================================================================================
+AppContext2.Maximize																			'Maximize the application to give the best chance that the fields will be visible on the screen
+AppContext2.Sync																				'Wait for the browser to stop spinning
+AIUtil.SetContext AppContext2																'Tell the AI engine to point at the application
+
+'===========================================================================================
+'BP:  Click the Add Costs link, use traditional OR as it isn't visible on the screen, but is on the page
+'===========================================================================================
+Browser("Create a Blank Staffing").Page("Financial Summary").Link("Add Costs").Click
+AppContext2.Sync																				'Wait for the browser to stop spinning
+
+'===========================================================================================
+'BP:  Click the copy costs button
+'===========================================================================================
+Browser("Create a Blank Staffing").Page("Edit Costs").WebElement("Copy Costs Button").Click
+
+'===========================================================================================
+'BP:  Click the Copy from Another Request text 
+'===========================================================================================
+AIUtil.FindTextBlock("Copy from Another Request").Click
+
+'===========================================================================================
+'BP:  Click the Include Project radio button
+'===========================================================================================
+AIUtil("radio_button", "0 Include Project:").SetState "on"
+
+'===========================================================================================
+'BP:  Type Web for One World into the Include Project text bos
+'===========================================================================================
+AIUtil("text_box", "@ Include Project:").Type "Web for One World"
+
+'===========================================================================================
+'BP:  Click the Copy Cost Lines text to get the application to run the value entry validation
+'===========================================================================================
+AIUtil.FindTextBlock("Copy Cost Lines").Click
+
+'===========================================================================================
+'BP:  Click the Add button
+'===========================================================================================
+AIUtil("button", "Add").Click
+AIUtil.FindTextBlock("Are you sure you want to copy cost lines from the source request?").Exist
+
+'===========================================================================================
+'BP:  Click the Copy Forecast Values check box
+'===========================================================================================
+AIUtil("check_box", "C1 Copy Forecast Values").SetState "On"
+
+'===========================================================================================
+'BP:  Click the Copy Copy button, detection improvement submitted.
+'===========================================================================================
+AIUtil("button", "", micFromBottom, 1).Click
+
+'===========================================================================================
+'BP:  Click the first 0.00 field and type 100
+'===========================================================================================
+AIUtil.FindTextBlock("0.000", micFromTop, 3).Click
+Window("Edit Costs").Type "100" @@ hightlight id_;_1771790_;_script infofile_;_ZIP::ssf2.xml_;_
+AIUtil.FindTextBlock("Contractor").Click
+
+'===========================================================================================
+'BP:  Click the Done button, detection improvement submitted.
+'===========================================================================================
+AIUtil("button", "", micFromRight, 2).Click
+
+'===========================================================================================
+'BP:  Close the popup window
+'===========================================================================================
+AppContext2.Close																			'Close the application at the end of your script
+AIUtil.SetContext AppContext																'Tell the AI engine to point at the application
+
+'===========================================================================================
+'BP:  Click the Save text
+'===========================================================================================
+Set ClickStatement = AIUtil.FindText("Save", micFromLeft, 1)
+Set SuccessStatement = AIUtil.FindText("Approved")
+ClickLoop AppContext, ClickStatement, SuccessStatement
 
 '===========================================================================================
 'BP:  Click the Approved button
