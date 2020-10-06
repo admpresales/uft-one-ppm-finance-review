@@ -7,6 +7,7 @@
 '			Added function comments
 '			Updated OR to have more logical names
 '20201006 - DJ: Added steps to add projected financial costs into the Financial Summary
+'20201006 - DJ: Updated steps that weren't working on lower resolutions
 '===========================================================
 
 '===========================================================
@@ -181,7 +182,8 @@ AIUtil("check_box", "C1 Copy Forecast Values").SetState "On"
 '===========================================================================================
 'BP:  Click the Copy Copy button, detection improvement submitted.
 '===========================================================================================
-AIUtil("button", "", micFromBottom, 1).Click
+'AIUtil("button", "", micFromBottom, 1).Click
+Browser("Create a Blank Staffing").Page("Edit Costs_2").Frame("CopyCostsDialog").WebButton("CopyButton").Click
 
 '===========================================================================================
 'BP:  Click the first 0.00 field and type 100
@@ -193,7 +195,8 @@ AIUtil.FindTextBlock("Contractor").Click
 '===========================================================================================
 'BP:  Click the Done button, detection improvement submitted.
 '===========================================================================================
-AIUtil("button", "", micFromRight, 2).Click
+'AIUtil("button", "", micFromRight, 2).Click
+Browser("Create a Blank Staffing").Page("Edit Costs_2").WebButton("Done").Click
 
 '===========================================================================================
 'BP:  Close the popup window
