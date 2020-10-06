@@ -1,27 +1,16 @@
 ﻿'===========================================================
 '20200929 - DJ: Added .sync statements after .click statements
 '20201001 - DJ: Added the ClickLoop and the PPMProposalSearch functions, removed duplicative code
+'20201006 - DJ: Updated PPMProposalSearch function to look for the text Saved Searches to know Search click worked and commented .sync after that to prevent PPM from auto closing the menu popup
+'			Corrected inaccurate comment
+'			Removed unused function
+'			Added function comments
+'			Updated OR to have more logical names
 '===========================================================
 
 '===========================================================
-'Function to Create a Random Number with DateTime Stamp
+'Function to retry action if next step doesn't show up
 '===========================================================
-Function fnRandomNumberWithDateTimeStamp()
-
-'Find out the current date and time
-Dim sDate : sDate = Day(Now)
-Dim sMonth : sMonth = Month(Now)
-Dim sYear : sYear = Year(Now)
-Dim sHour : sHour = Hour(Now)
-Dim sMinute : sMinute = Minute(Now)
-Dim sSecond : sSecond = Second(Now)
-
-'Create Random Number
-fnRandomNumberWithDateTimeStamp = Int(sDate & sMonth & sYear & sHour & sMinute & sSecond)
-
-'======================== End Function =====================
-End Function
-
 Function ClickLoop (AppContext, ClickStatement, SuccessStatement)
 	
 	Dim Counter
@@ -42,14 +31,17 @@ Function ClickLoop (AppContext, ClickStatement, SuccessStatement)
 
 End Function
 
+'===========================================================
+'Function to search for the PPM proposal in the appropriate status
+'===========================================================
 Function PPMProposalSearch (CurrentStatus, NextAction)
 	'===========================================================================================
 	'BP:  Click the Search menu item
 	'===========================================================================================
 	Set ClickStatement = AIUtil.FindText("SEARCH", micFromTop, 1)
-	Set SuccessStatement = AIUtil.FindTextBlock("Requests", micFromTop, 1)
+	Set SuccessStatement = AIUtil.FindText("Saved Searches")
 	ClickLoop AppContext, ClickStatement, SuccessStatement
-	AppContext.Sync																				'Wait for the browser to stop spinning
+	'AppContext.Sync																				'Wait for the browser to stop spinning
 	
 	'===========================================================================================
 	'BP:  Click the Requests text
@@ -109,7 +101,7 @@ AppContext.Sync																				'Wait for the browser to stop spinning
 AIUtil.SetContext AppContext																'Tell the AI engine to point at the application
 
 '===========================================================================================
-'BP:  Click the Executive Overview link
+'BP:  Click the Strategic Portfolio link
 '===========================================================================================
 AIUtil.FindText("Strategic Portfolio").Click
 AppContext.Sync																				'Wait for the browser to stop spinning
@@ -135,7 +127,7 @@ AppContext.Sync																				'Wait for the browser to stop spinning
 '===========================================================================================
 'BP:  Logout
 '===========================================================================================
-Browser("Search Requests").Page("Req #42953: Details").WebElement("menuUserIcon").Click
+Browser("Search Requests").Page("Req Details").WebElement("menuUserIcon").Click
 AppContext.Sync																				'Wait for the browser to stop spinning
 AIUtil.FindTextBlock("Sign Out (Andy Stein)").Click
 AppContext.Sync																				'Wait for the browser to stop spinning
