@@ -8,6 +8,7 @@
 '			Updated OR to have more logical names
 '20201006 - DJ: Added steps to add projected financial costs into the Financial Summary
 '20201006 - DJ: Updated steps that weren't working on lower resolutions
+'20201008 - DJ: Updated for missing step of saving the changes to the financial details before closing and associate .sync
 '===========================================================
 
 '===========================================================
@@ -191,17 +192,19 @@ Browser("Create a Blank Staffing").Page("Edit Costs_2").Frame("CopyCostsDialog")
 AIUtil.FindTextBlock("0.000", micFromTop, 3).Click
 Window("Edit Costs").Type "100" @@ hightlight id_;_1771790_;_script infofile_;_ZIP::ssf2.xml_;_
 AIUtil.FindTextBlock("Contractor").Click
+Browser("Create a Blank Staffing").Page("Edit Costs_3").WebButton("Save").Click
+AppContext2.Sync																			'Close the application at the end of your script
 
 '===========================================================================================
 'BP:  Click the Done button, detection improvement submitted.
 '===========================================================================================
 'AIUtil("button", "", micFromRight, 2).Click
 Browser("Create a Blank Staffing").Page("Edit Costs_2").WebButton("Done").Click
+AppContext2.Close																			'Close the application at the end of your script
 
 '===========================================================================================
 'BP:  Close the popup window
 '===========================================================================================
-AppContext2.Close																			'Close the application at the end of your script
 AIUtil.SetContext AppContext																'Tell the AI engine to point at the application
 
 '===========================================================================================
