@@ -10,6 +10,8 @@
 '20201006 - DJ: Updated steps that weren't working on lower resolutions
 '20201008 - DJ: Updated for missing step of saving the changes to the financial details before closing and associate .sync
 '20201013 - DJ: Modified the ClickLoop retry counter to be 3 instead of 90
+'20201020 - DJ: Updated to handle changes coming in UFT One 15.0.2
+'				Commented out the msgbox, which can cause UFT One to be in a locked state when executed from Jenkins
 '===========================================================
 
 '===========================================================
@@ -26,11 +28,11 @@ Function ClickLoop (AppContext, ClickStatement, SuccessStatement)
 		Counter = Counter + 1
 		wait(1)
 		If Counter >=3 Then
-			msgbox("Something is broken, the Requests hasn't shown up")
+			'msgbox("Something is broken, the Requests hasn't shown up")
 			Reporter.ReportEvent micFail, "Click the Search text", "The Requests text didn't display within " & Counter & " attempts."
 			Exit Do
 		End If
-	Loop Until SuccessStatement.Exist(1)
+	Loop Until SuccessStatement.Exist(10)
 	AppContext.Sync																				'Wait for the browser to stop spinning
 
 End Function
@@ -84,7 +86,7 @@ Function PPMProposalSearch (CurrentStatus, NextAction)
 	
 End Function
 
-Dim BrowserExecutable, Counter, mySendKeys
+Dim BrowserExecutable, Counter, mySendKeys, rc
 
 While Browser("CreationTime:=0").Exist(0)   												'Loop to close all open browsers
 	Browser("CreationTime:=0").Close 
@@ -115,7 +117,7 @@ AppContext.Sync																				'Wait for the browser to stop spinning
 '===========================================================================================
 AIUtil.FindTextBlock("Andy Stein").Click
 AppContext.Sync																				'Wait for the browser to stop spinning
-AIUtil.FindTextBlock("Proposals Eligible for My Action (Financial Review)").Exist
+rc = AIUtil.FindTextBlock("Proposals Eligible for My Action (Financial Review)").Exist
 
 '===========================================================================================
 'BP:  Search for propsals currently in a status of "Finance Review"
@@ -174,7 +176,7 @@ AIUtil.FindTextBlock("Copy Cost Lines").Click
 'BP:  Click the Add button
 '===========================================================================================
 AIUtil("button", "Add").Click
-AIUtil.FindTextBlock("Are you sure you want to copy cost lines from the source request?").Exist
+rc = AIUtil.FindTextBlock("Are you sure you want to copy cost lines from the source request?").Exist
 
 '===========================================================================================
 'BP:  Click the Copy Forecast Values check box
