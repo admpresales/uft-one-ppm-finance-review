@@ -13,6 +13,8 @@
 '20201020 - DJ: Updated to handle changes coming in UFT One 15.0.2
 '				Commented out the msgbox, which can cause UFT One to be in a locked state when executed from Jenkins
 '20201022 - DJ: Updated ClickLoop to gracefully abort if failure number reached
+'20201022 - DJ: Disabled smart identification on Browser("Create a Blank Staffing").Page("Edit Costs_2").Frame("CopyCostsDialog").WebButton("CopyButton")
+'				Updated the click on the add button statement to use ClickLoop
 '===========================================================
 
 '===========================================================
@@ -182,12 +184,16 @@ AIUtil("text_box", "@ Include Project:").Type "Web for One World"
 'BP:  Click the Copy Cost Lines text to get the application to run the value entry validation
 '===========================================================================================
 AIUtil.FindTextBlock("Copy Cost Lines").Click
+Set ClickStatement = AIUtil.FindTextBlock("Copy Cost Lines")
+Set SuccessStatement = AIUtil("button", "Add")
+ClickLoop AppContext, ClickStatement, SuccessStatement
 
 '===========================================================================================
 'BP:  Click the Add button
 '===========================================================================================
-AIUtil("button", "Add").Click
-rc = AIUtil.FindTextBlock("Are you sure you want to copy cost lines from the source request?").Exist
+Set ClickStatement = AIUtil("button", "Add")
+Set SuccessStatement = AIUtil.FindTextBlock("Are you sure you want to copy cost lines from the source request?")
+ClickLoop AppContext, ClickStatement, SuccessStatement
 
 '===========================================================================================
 'BP:  Click the Copy Forecast Values check box
