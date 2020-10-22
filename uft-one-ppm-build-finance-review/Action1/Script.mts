@@ -12,6 +12,7 @@
 '20201013 - DJ: Modified the ClickLoop retry counter to be 3 instead of 90
 '20201020 - DJ: Updated to handle changes coming in UFT One 15.0.2
 '				Commented out the msgbox, which can cause UFT One to be in a locked state when executed from Jenkins
+'20201022 - DJ: Updated ClickLoop to gracefully abort if failure number reached
 '===========================================================
 
 '===========================================================
@@ -28,9 +29,19 @@ Function ClickLoop (AppContext, ClickStatement, SuccessStatement)
 		Counter = Counter + 1
 		wait(1)
 		If Counter >=3 Then
-			'msgbox("Something is broken, the Requests hasn't shown up")
-			Reporter.ReportEvent micFail, "Click the Search text", "The Requests text didn't display within " & Counter & " attempts."
-			Exit Do
+			Reporter.ReportEvent micFail, "Click Statement", "The Success Statement didn't display within " & Counter & " attempts.  Aborting run"
+			'===========================================================================================
+			'BP:  Logout
+			'===========================================================================================
+			AIUtil.SetContext AppContext																'Tell the AI engine to point at the application
+			Browser("Search Requests").Page("Req Details").WebElement("menuUserIcon").Click
+			AppContext.Sync																				'Wait for the browser to stop spinning
+			AIUtil.FindText("Sign Out (").Click
+			AppContext.Sync																				'Wait for the browser to stop spinning
+			While Browser("CreationTime:=0").Exist(0)   												'Loop to close all open browsers
+				Browser("CreationTime:=0").Close 
+			Wend
+			ExitAction
 		End If
 	Loop Until SuccessStatement.Exist(10)
 	AppContext.Sync																				'Wait for the browser to stop spinning
