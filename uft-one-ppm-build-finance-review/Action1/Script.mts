@@ -15,6 +15,7 @@
 '20201022 - DJ: Updated ClickLoop to gracefully abort if failure number reached
 '20201022 - DJ: Disabled smart identification on Browser("Create a Blank Staffing").Page("Edit Costs_2").Frame("CopyCostsDialog").WebButton("CopyButton")
 '				Updated the click on the add button statement to use ClickLoop
+'20201023 - DJ: Added a .highlight for the Save and Done objects on the edit costs window as PPM isn't saving fast enough.
 '===========================================================
 
 '===========================================================
@@ -213,12 +214,16 @@ AIUtil.FindTextBlock("0.000", micFromTop, 3).Click
 Window("Edit Costs").Type "100" @@ hightlight id_;_1771790_;_script infofile_;_ZIP::ssf2.xml_;_
 AIUtil.FindTextBlock("Contractor").Click
 Browser("Create a Blank Staffing").Page("Edit Costs_3").WebButton("Save").Click
-AppContext2.Sync																			'Close the application at the end of your script
+AppContext2.Sync																			
+Browser("Create a Blank Staffing").Page("Edit Costs_3").WebButton("Save").Highlight
+AppContext2.Sync																			
 
 '===========================================================================================
 'BP:  Click the Done button, detection improvement submitted.
 '===========================================================================================
 'AIUtil("button", "", micFromRight, 2).Click
+Browser("Create a Blank Staffing").Page("Edit Costs_2").WebButton("Done").Highlight
+AppContext2.Sync																			
 Browser("Create a Blank Staffing").Page("Edit Costs_2").WebButton("Done").Click
 AppContext2.Close																			'Close the application at the end of your script
 
