@@ -16,6 +16,8 @@
 '20201022 - DJ: Disabled smart identification on Browser("Create a Blank Staffing").Page("Edit Costs_2").Frame("CopyCostsDialog").WebButton("CopyButton")
 '				Updated the click on the add button statement to use ClickLoop
 '20201023 - DJ: Added a .highlight for the Save and Done objects on the edit costs window as PPM isn't saving fast enough.
+'20201024 - DJ: Removed the .highlight steps added in previous update.  Edited object properties to include outerhtml which changes between enabled and disabled
+'				and added logic to wait for the enabled version to disappear before proceeding.
 '===========================================================
 
 '===========================================================
@@ -214,16 +216,32 @@ AIUtil.FindTextBlock("0.000", micFromTop, 3).Click
 Window("Edit Costs").Type "100" @@ hightlight id_;_1771790_;_script infofile_;_ZIP::ssf2.xml_;_
 AIUtil.FindTextBlock("Contractor").Click
 Browser("Create a Blank Staffing").Page("Edit Costs_3").WebButton("Save").Click
-AppContext2.Sync																			
-Browser("Create a Blank Staffing").Page("Edit Costs_3").WebButton("Save").Highlight
-AppContext2.Sync																			
+Counter = 0
+Do
+	Counter = Counter + 1
+	AppContext2.Sync																			
+	wait(1)	
+		If Counter >=20 Then
+			Reporter.ReportEvent micFail, "Enabled Save Button", "The Enabled Save Button still displayed within " & Counter & " attempts.  Aborting run"
+			'===========================================================================================
+			'BP:  Logout
+			'===========================================================================================
+			AIUtil.SetContext AppContext																'Tell the AI engine to point at the application
+			Browser("Search Requests").Page("Req Details").WebElement("menuUserIcon").Click
+			AppContext.Sync																				'Wait for the browser to stop spinning
+			AIUtil.FindText("Sign Out (").Click
+			AppContext.Sync																				'Wait for the browser to stop spinning
+			While Browser("CreationTime:=0").Exist(0)   												'Loop to close all open browsers
+				Browser("CreationTime:=0").Close 
+			Wend
+			ExitAction
+		End If
+Loop While Browser("Create a Blank Staffing").Page("Edit Costs_3").WebButton("Save").Exist(1)
 
 '===========================================================================================
 'BP:  Click the Done button, detection improvement submitted.
 '===========================================================================================
 'AIUtil("button", "", micFromRight, 2).Click
-Browser("Create a Blank Staffing").Page("Edit Costs_2").WebButton("Done").Highlight
-AppContext2.Sync																			
 Browser("Create a Blank Staffing").Page("Edit Costs_2").WebButton("Done").Click
 AppContext2.Close																			'Close the application at the end of your script
 
