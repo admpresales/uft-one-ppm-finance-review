@@ -18,6 +18,8 @@
 '20201023 - DJ: Added a .highlight for the Save and Done objects on the edit costs window as PPM isn't saving fast enough.
 '20201024 - DJ: Removed the .highlight steps added in previous update.  Edited object properties to include outerhtml which changes between enabled and disabled
 '				and added logic to wait for the enabled version to disappear before proceeding.
+'20210105 - DJ: Added step to select the correct fiscal year for changing the copied cost values.
+'				Changed incorrect context setting, speeding up execution
 '===========================================================
 
 '===========================================================
@@ -189,14 +191,14 @@ AIUtil("text_box", "@ Include Project:").Type "Web for One World"
 AIUtil.FindTextBlock("Copy Cost Lines").Click
 Set ClickStatement = AIUtil.FindTextBlock("Copy Cost Lines")
 Set SuccessStatement = AIUtil("button", "Add")
-ClickLoop AppContext, ClickStatement, SuccessStatement
+ClickLoop AppContext2, ClickStatement, SuccessStatement
 
 '===========================================================================================
 'BP:  Click the Add button
 '===========================================================================================
 Set ClickStatement = AIUtil("button", "Add")
 Set SuccessStatement = AIUtil.FindTextBlock("Are you sure you want to copy cost lines from the source request?")
-ClickLoop AppContext, ClickStatement, SuccessStatement
+ClickLoop AppContext2, ClickStatement, SuccessStatement
 
 '===========================================================================================
 'BP:  Click the Copy Forecast Values check box
@@ -208,6 +210,12 @@ AIUtil("check_box", "C1 Copy Forecast Values").SetState "On"
 '===========================================================================================
 'AIUtil("button", "", micFromBottom, 1).Click
 Browser("Create a Blank Staffing").Page("Edit Costs_2").Frame("CopyCostsDialog").WebButton("CopyButton").Click
+
+'===========================================================================================
+'BP:  Select the Fiscal Year 2020 from the Fiscal Year combobox
+'===========================================================================================
+AIUtil("combobox", "Edit Costs (x $1,000)").Select "2020"
+AppContext2.Sync
 
 '===========================================================================================
 'BP:  Click the first 0.00 field and type 100
