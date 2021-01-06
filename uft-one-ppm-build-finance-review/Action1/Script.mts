@@ -20,6 +20,7 @@
 '				and added logic to wait for the enabled version to disappear before proceeding.
 '20210105 - DJ: Added step to select the correct fiscal year for changing the copied cost values.
 '				Changed incorrect context setting, speeding up execution
+'20210106 - DJ: Added logic to check to make sure the new cost value was successfully entered, if not, try again, up to 3 times.
 '===========================================================
 
 '===========================================================
@@ -220,9 +221,31 @@ AppContext2.Sync
 '===========================================================================================
 'BP:  Click the first 0.00 field and type 100
 '===========================================================================================
-AIUtil.FindTextBlock("0.000", micFromTop, 3).Click
-Window("Edit Costs").Type "100" @@ hightlight id_;_1771790_;_script infofile_;_ZIP::ssf2.xml_;_
-AIUtil.FindTextBlock("Contractor").Click
+Counter = 0
+Do
+	Counter = Counter + 1
+	AIUtil.FindTextBlock("0.000", micFromTop, 3).Click
+	Window("Edit Costs").Type "100" @@ hightlight id_;_1771790_;_script infofile_;_ZIP::ssf2.xml_;_
+	AIUtil.FindTextBlock("Contractor").Click	
+	AppContext2.Sync																			
+	wait(1)	
+		If Counter >= 3 Then
+			Reporter.ReportEvent micFail, "Enter New Cost Value", "The new entered value didn't display within " & Counter & " attempts.  Aborting run"
+			'===========================================================================================
+			'BP:  Logout
+			'===========================================================================================
+			AIUtil.SetContext AppContext																'Tell the AI engine to point at the application
+			Browser("Search Requests").Page("Req Details").WebElement("menuUserIcon").Click
+			AppContext.Sync																				'Wait for the browser to stop spinning
+			AIUtil.FindText("Sign Out (").Click
+			AppContext.Sync																				'Wait for the browser to stop spinning
+			While Browser("CreationTime:=0").Exist(0)   												'Loop to close all open browsers
+				Browser("CreationTime:=0").Close 
+			Wend
+			ExitAction
+		End If
+Loop Until AIUtil.FindTextBlock("100.000", micFromLeft, 1).Exist(1)
+
 Browser("Create a Blank Staffing").Page("Edit Costs_3").WebButton("Save").Click
 Counter = 0
 Do
