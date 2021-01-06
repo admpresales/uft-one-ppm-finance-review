@@ -21,6 +21,7 @@
 '20210105 - DJ: Added step to select the correct fiscal year for changing the copied cost values.
 '				Changed incorrect context setting, speeding up execution
 '20210106 - DJ: Added logic to check to make sure the new cost value was successfully entered, if not, try again, up to 3 times.
+'20210106 - DJ: Added parameter for the fiscal year to modify for costs
 '===========================================================
 
 '===========================================================
@@ -215,7 +216,7 @@ Browser("Create a Blank Staffing").Page("Edit Costs_2").Frame("CopyCostsDialog")
 '===========================================================================================
 'BP:  Select the Fiscal Year 2020 from the Fiscal Year combobox
 '===========================================================================================
-AIUtil("combobox", "Edit Costs (x $1,000)").Select "2020"
+AIUtil("combobox", "Edit Costs (x $1,000)").Select DataTable.Value("FiscalYear")
 AppContext2.Sync
 
 '===========================================================================================
