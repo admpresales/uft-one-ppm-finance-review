@@ -22,6 +22,7 @@
 '				Changed incorrect context setting, speeding up execution
 '20210106 - DJ: Added logic to check to make sure the new cost value was successfully entered, if not, try again, up to 3 times.
 '20210106 - DJ: Added parameter for the fiscal year to modify for costs
+'20210107 - DJ: Modified the fiscal year reference to use VRI off of the Fiscal Year text
 '===========================================================
 
 '===========================================================
@@ -216,7 +217,7 @@ Browser("Create a Blank Staffing").Page("Edit Costs_2").Frame("CopyCostsDialog")
 '===========================================================================================
 'BP:  Select the Fiscal Year 2020 from the Fiscal Year combobox
 '===========================================================================================
-AIUtil("combobox", "Edit Costs (x $1,000)").Select DataTable.Value("FiscalYear")
+AIUtil("combobox", micAnyText, micWithAnchorOnLeft, AIUtil.FindTextBlock("Fiscal Year:")).Select DataTable.Value("FiscalYear")
 AppContext2.Sync
 
 '===========================================================================================
@@ -304,4 +305,5 @@ AIUtil.FindTextBlock("Sign Out (Andy Stein)").Click
 AppContext.Sync																				'Wait for the browser to stop spinning
 
 AppContext.Close																			'Close the application at the end of your script
+
 
