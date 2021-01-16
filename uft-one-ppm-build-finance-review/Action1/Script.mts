@@ -24,6 +24,7 @@
 '20210106 - DJ: Added parameter for the fiscal year to modify for costs
 '20210107 - DJ: Modified the fiscal year reference to use VRI off of the Fiscal Year text
 '20210113 - DJ: Modified the fiscal year parameter to be 2021, in 9.63 container the time machine has been run. This version will FAIL in 9.62.
+'20210116 - DJ: Updated Copy Costs Button properties due to changes in 9.63
 '===========================================================
 
 '===========================================================
