@@ -25,6 +25,8 @@
 '20210107 - DJ: Modified the fiscal year reference to use VRI off of the Fiscal Year text
 '20210113 - DJ: Modified the fiscal year parameter to be 2021, in 9.63 container the time machine has been run. This version will FAIL in 9.62.
 '20210116 - DJ: Updated Copy Costs Button properties due to changes in 9.63
+'20210119 - DJ: Handled situation where on very large resolutions, the text and arrows of the combobox were so far apart, AI doesn't think they're connected, thus not a combobox.
+'				Also pdated to avoid using the generic type command, editing the resource type instead, added logic to make sure it made the change.
 '===========================================================
 
 '===========================================================
@@ -219,22 +221,37 @@ Browser("Create a Blank Staffing").Page("Edit Costs_2").Frame("CopyCostsDialog")
 '===========================================================================================
 'BP:  Select the Fiscal Year 2020 from the Fiscal Year combobox
 '===========================================================================================
-AIUtil("combobox", micAnyText, micWithAnchorOnLeft, AIUtil.FindTextBlock("Fiscal Year:")).Select DataTable.Value("FiscalYear")
+If AIUtil("combobox", micAnyText, micWithAnchorOnLeft, AIUtil.FindTextBlock("Fiscal Year:")).Exist Then
+	AIUtil("combobox", micAnyText, micWithAnchorOnLeft, AIUtil.FindTextBlock("Fiscal Year:")).Select DataTable.Value("FiscalYear")
+Else
+	Browser("Create a Blank Staffing").Page("Edit Costs_4").WebList("FiscalYear").Select DataTable.Value("FiscalYear")
+End If
 AppContext2.Sync
 
 '===========================================================================================
-'BP:  Click the first 0.00 field and type 100
+'BP:  Edit the category
 '===========================================================================================
 Counter = 0
 Do
 	Counter = Counter + 1
-	AIUtil.FindTextBlock("0.000", micFromTop, 3).Click
-	Window("Edit Costs").Type "100" @@ hightlight id_;_1771790_;_script infofile_;_ZIP::ssf2.xml_;_
-	AIUtil.FindTextBlock("Contractor").Click	
+	Browser("Create a Blank Staffing").Page("Edit Costs_4").WebElement("FirstLineEditButton").Click
+	AppContext2.Sync
+	AIUtil("combobox", micAnyText, micWithAnchorAbove, AIUtil.FindTextBlock("Edit a Cost Line")).Select "Non-Labor"
+	AIUtil("combobox", micAnyText, micWithAnchorOnLeft, AIUtil.FindTextBlock("Edit a Cost Line")).Select "Labor"
+	AIUtil("text_box").Type "Consultant"
+	AIUtil.FindTextBlock("Edit a Cost Line").Click
+	Do
+		AIUtil("button", "0K").Click
+	Loop While AIUtil("button", "0K").Exist = True
+	
+	'AIUtil("down_triangle", micAnyText, micFromTop, 2).Click
+	'AIUtil.FindTextBlock("0.000", micFromTop, 3).Click
+	'Window("Edit Costs").Type "100" @@ hightlight id_;_1771790_;_script infofile_;_ZIP::ssf2.xml_;_
+	'AIUtil.FindTextBlock("Contractor").Click	
 	AppContext2.Sync																			
 	wait(1)	
 		If Counter >= 3 Then
-			Reporter.ReportEvent micFail, "Enter New Cost Value", "The new entered value didn't display within " & Counter & " attempts.  Aborting run"
+			Reporter.ReportEvent micFail, "Changing a value", "The new entered value didn't display within " & Counter & " attempts.  Aborting run"
 			'===========================================================================================
 			'BP:  Logout
 			'===========================================================================================
@@ -248,7 +265,7 @@ Do
 			Wend
 			ExitAction
 		End If
-Loop Until AIUtil.FindTextBlock("100.000", micFromLeft, 1).Exist(1)
+Loop Until AIUtil.FindTextBlock("Consultant").Exist
 
 Browser("Create a Blank Staffing").Page("Edit Costs_3").WebButton("Save").Click
 Counter = 0
