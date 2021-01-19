@@ -26,7 +26,7 @@
 '20210113 - DJ: Modified the fiscal year parameter to be 2021, in 9.63 container the time machine has been run. This version will FAIL in 9.62.
 '20210116 - DJ: Updated Copy Costs Button properties due to changes in 9.63
 '20210119 - DJ: Handled situation where on very large resolutions, the text and arrows of the combobox were so far apart, AI doesn't think they're connected, thus not a combobox.
-'				Also pdated to avoid using the generic type command, editing the resource type instead, added logic to make sure it made the change.
+'				Also updated to avoid using the generic type command, editing the resource type instead, added logic to make sure it made the change.
 '===========================================================
 
 '===========================================================
