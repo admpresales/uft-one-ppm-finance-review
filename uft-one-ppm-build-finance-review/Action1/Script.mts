@@ -27,6 +27,7 @@
 '20210116 - DJ: Updated Copy Costs Button properties due to changes in 9.63
 '20210119 - DJ: Handled situation where on very large resolutions, the text and arrows of the combobox were so far apart, AI doesn't think they're connected, thus not a combobox.
 '				Also updated to avoid using the generic type command, editing the resource type instead, added logic to make sure it made the change.
+'20210128 - DJ: Added logic to handle smaller resolution screens with regards to type Edit Costs Type field.
 '===========================================================
 
 '===========================================================
@@ -236,8 +237,17 @@ Do
 	Counter = Counter + 1
 	Browser("Create a Blank Staffing").Page("Edit Costs_4").WebElement("FirstLineEditButton").Click
 	AppContext2.Sync
-	AIUtil("combobox", micAnyText, micWithAnchorAbove, AIUtil.FindTextBlock("Edit a Cost Line")).Select "Non-Labor"
-	AIUtil("combobox", micAnyText, micWithAnchorOnLeft, AIUtil.FindTextBlock("Edit a Cost Line")).Select "Labor"
+	If AIUtil("combobox", micAnyText, micWithAnchorOnLeft, AIUtil.FindTextBlock("Edit a Cost Line")).Exist(2) Then
+		AIUtil("combobox", micAnyText, micWithAnchorOnLeft, AIUtil.FindTextBlock("Edit a Cost Line")).Select "Non-Labor"
+	Else
+		Browser("Create a Blank Staffing").Page("Edit Costs_4").Frame("editCostLineDialogIF").WebList("TypeComboBox").Select "Non-Labor"
+	End If
+	AppContext2.Sync
+	If AIUtil("combobox", micAnyText, micWithAnchorOnLeft, AIUtil.FindTextBlock("Edit a Cost Line")).Exist(2) Then
+		AIUtil("combobox", micAnyText, micWithAnchorOnLeft, AIUtil.FindTextBlock("Edit a Cost Line")).Select "Labor"
+	Else
+		Browser("Create a Blank Staffing").Page("Edit Costs_4").Frame("editCostLineDialogIF").WebList("TypeComboBox").Select "Labor"
+	End If
 	AIUtil("text_box").Type "Consultant"
 	AIUtil.FindTextBlock("Edit a Cost Line").Click
 	Do
