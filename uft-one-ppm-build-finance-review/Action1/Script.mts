@@ -28,6 +28,7 @@
 '20210119 - DJ: Handled situation where on very large resolutions, the text and arrows of the combobox were so far apart, AI doesn't think they're connected, thus not a combobox.
 '				Also updated to avoid using the generic type command, editing the resource type instead, added logic to make sure it made the change.
 '20210128 - DJ: Added logic to handle smaller resolution screens with regards to type Edit Costs Type field.
+'20210209 - DJ: Updated to start the mediaserver service on the UFT One host machine if it isn't running
 '===========================================================
 
 '===========================================================
@@ -112,7 +113,11 @@ Function PPMProposalSearch (CurrentStatus, NextAction)
 	
 End Function
 
-Dim BrowserExecutable, Counter, mySendKeys, rc
+Dim BrowserExecutable, Counter, mySendKeys, rc, oShell
+
+Set oShell = CreateObject ("WSCript.shell")
+oShell.run "powershell -command ""Start-Service mediaserver"""
+Set oShell = Nothing
 
 While Browser("CreationTime:=0").Exist(0)   												'Loop to close all open browsers
 	Browser("CreationTime:=0").Close 
